@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+        db:
+                image: mysql:5.7
+                container_name: database
+                restart: unless-stopped
+                volumes:
+                        - db_data:/var/lib/mysql
+                environment:
+                        MYSQL_DATABASE: wordpress
+                        MYSQL_ROOT_PASSWORD: linux
+                        MYSQL_USER: mathi
+                        MYSQL_PASSWORD: asd
+                networks:
+                        - app
+
+        WORDPRESS:
+                image: wordpress:5.2.3-apache
+                container_name: wordpress
+                restart: unless-stopped
+                ports:
+                        - "80:80"
+                environment:
+                        WORDPRESS_DB_HOST: db
+                        WORDPRESS_DB_USER: mathi
+                        WORDPRESS_DB_PASSWORD: asd
+                        WORDPRESS_DB_NAME: wordpress
+                depends_on:
+                        - db
+                networks:
+                        - app
+ 
+        nginx:
+                depends_on:
+                        - wordpress
+                image: nginx:1.17
+                container_name: serverweb
+                restart: unless-stopped
+                volumes:
+                        - wordpress:/var/www/html
+                        - ./nginx-conf:/etc/nginx/conf.d
+
+
+
+volumes:
+        db_data:
+        WORDPRESS:
+
+networks:
+        app:
+                driver: bridge
+
+
